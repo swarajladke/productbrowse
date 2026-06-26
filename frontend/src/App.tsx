@@ -106,9 +106,9 @@ function App() {
           </div>
           
           <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <a href="#" className="text-white relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-[2px] after:bg-[#10B981]">Home</a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">Categories</a>
-            <a href="#" className="text-slate-400 hover:text-white transition-colors">About</a>
+            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-[2px] after:bg-[#10B981]">Home</button>
+            <button onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-400 hover:text-white transition-colors">Categories</button>
+            <button onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-400 hover:text-white transition-colors">About</button>
           </div>
         </div>
 
@@ -149,10 +149,22 @@ function App() {
             </p>
             
             <div className="flex items-center gap-4">
-              <button className="flex items-center gap-2 bg-[#10B981] hover:bg-[#0EA5E9]/90 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]">
+              <button 
+                onClick={() => {
+                  setCategory('All');
+                  document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center gap-2 bg-[#10B981] hover:bg-[#0EA5E9]/90 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]"
+              >
                 Browse All Products <ArrowRight className="w-4 h-4" />
               </button>
-              <button className="flex items-center gap-2 bg-[#131826] hover:bg-[#1A2133] border border-white/[0.05] text-white font-medium py-3 px-6 rounded-lg transition-colors">
+              <button 
+                onClick={() => {
+                  document.getElementById('category-select')?.focus();
+                  document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' });
+                }}
+                className="flex items-center gap-2 bg-[#131826] hover:bg-[#1A2133] border border-white/[0.05] text-white font-medium py-3 px-6 rounded-lg transition-colors"
+              >
                 View Categories <Grid className="w-4 h-4" />
               </button>
             </div>
@@ -195,16 +207,17 @@ function App() {
       </section>
 
       {/* Main Content Area */}
-      <main className="flex-1 max-w-[1400px] w-full mx-auto p-6 md:p-8">
+      <main id="product-grid" className="flex-1 max-w-[1400px] w-full mx-auto p-6 md:p-8 scroll-mt-24">
         
         {/* Control Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4 w-full sm:w-auto">
             <div className="relative hidden sm:block">
               <select 
+                id="category-select"
                 value={category}
                 onChange={(e) => setCategory(e.target.value)}
-                className="bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg block py-2.5 pl-10 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer"
+                className="bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg block py-2.5 pl-10 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer focus:ring-2 focus:ring-[#10B981]"
               >
                 {CATEGORIES.map(c => (
                   <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
@@ -342,7 +355,7 @@ function App() {
       </main>
 
       {/* Tech Stack Footer (Matches Mockup) */}
-      <footer className="w-full border-t border-white/[0.05] bg-[#090C15] mt-auto">
+      <footer id="footer" className="w-full border-t border-white/[0.05] bg-[#090C15] mt-auto">
         <div className="max-w-[1400px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
           
           <div className="flex flex-wrap items-center gap-x-12 gap-y-4">
