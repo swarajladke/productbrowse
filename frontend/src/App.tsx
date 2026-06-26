@@ -1,8 +1,8 @@
-import { useEffect, useState, useRef, useCallback } from 'react'
+import { useEffect, useState } from 'react'
 import { fetchProducts } from './api'
 import type { Product } from './api'
 import { 
-  PackageOpen, Search, Moon, Grid, ArrowRight, Box, Tag, Zap, ShieldCheck, 
+  PackageOpen, Grid, ArrowRight, Box, Tag, Zap, ShieldCheck, 
   ChevronDown, ArrowUpDown, Clock, CheckCircle2, Database, LayoutTemplate,
   Laptop, BookOpen, Shirt, Dumbbell, Sofa, Gamepad2, Sparkles, Car, Home, ShoppingBag
 } from 'lucide-react'
@@ -294,8 +294,6 @@ function App() {
         {/* Product Grid (Horizontal Layout) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {products.map((product, index) => {
-            const isLast = products.length === index + 1;
-            
             // Generate a color hue for the placeholder image based on ID
             const hue = (product.id * 137.5) % 360;
             const bgGradient = `linear-gradient(135deg, hsl(${hue}, 40%, 15%), hsl(${hue}, 60%, 8%))`;
