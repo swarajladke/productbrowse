@@ -113,22 +113,6 @@ function App() {
         </div>
 
         <div className="flex items-center gap-4">
-          <div className="hidden lg:flex relative w-80">
-            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-            <input 
-              type="text" 
-              placeholder="Search products, categories, or keywords..." 
-              className="w-full bg-[#131826] border border-white/[0.05] rounded-lg pl-9 pr-12 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#10B981]/50 focus:ring-1 focus:ring-[#10B981]/50 transition-all"
-            />
-            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded">
-              <span className="font-sans text-xs">⌘</span><span>K</span>
-            </div>
-          </div>
-          
-          <button className="p-2 text-slate-400 hover:text-white transition-colors">
-            <Moon className="w-5 h-5" />
-          </button>
-          
           <div className="relative">
             <select 
               value={category}
@@ -216,14 +200,6 @@ function App() {
         {/* Control Bar */}
         <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
           <div className="flex items-center gap-4 w-full sm:w-auto">
-            <div className="relative w-full sm:w-72">
-              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
-              <input 
-                type="text" 
-                placeholder="Search products..." 
-                className="w-full bg-[#131826] border border-white/[0.05] rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#10B981]/50"
-              />
-            </div>
             <div className="relative hidden sm:block">
               <select 
                 value={category}
