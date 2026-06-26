@@ -95,38 +95,6 @@ function App() {
   return (
     <div className="min-h-screen bg-[#090C15] text-slate-300 flex flex-col font-sans selection:bg-[#10B981]/30">
       
-      {/* Navbar */}
-      <nav className="sticky top-0 z-50 bg-[#090C15]/90 backdrop-blur-xl border-b border-white/[0.05] px-6 py-4 flex items-center justify-between">
-        <div className="flex items-center gap-8">
-          <div className="flex items-center gap-3">
-            <div className="text-[#10B981]">
-              <PackageOpen className="w-6 h-6" />
-            </div>
-            <h1 className="text-xl font-bold tracking-tight text-white">CodeVector Market</h1>
-          </div>
-          
-          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
-            <button onClick={() => window.scrollTo({ top: 0, behavior: 'smooth' })} className="text-white relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-[2px] after:bg-[#10B981]">Home</button>
-            <button onClick={() => document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-400 hover:text-white transition-colors">Categories</button>
-            <button onClick={() => document.getElementById('footer')?.scrollIntoView({ behavior: 'smooth' })} className="text-slate-400 hover:text-white transition-colors">About</button>
-          </div>
-        </div>
-
-        <div className="flex items-center gap-4">
-          <div className="relative">
-            <select 
-              value={category}
-              onChange={(e) => setCategory(e.target.value)}
-              className="bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg focus:ring-1 focus:ring-[#10B981] focus:border-[#10B981] block py-2 pl-4 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer"
-            >
-              {CATEGORIES.map(c => (
-                <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
-              ))}
-            </select>
-            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
-          </div>
-        </div>
-      </nav>
 
       {/* Hero Section */}
       <section className="relative w-full max-w-[1400px] mx-auto px-6 pt-16 pb-12 overflow-hidden border-b border-white/[0.05]">
