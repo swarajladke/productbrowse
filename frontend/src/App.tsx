@@ -39,21 +39,10 @@ function App() {
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
   const [loadedCount, setLoadedCount] = useState<number>(0)
-
-  const observer = useRef<IntersectionObserver | null>(null)
   
-  const lastProductElementRef = useCallback((node: HTMLDivElement) => {
-    if (loading) return
-    if (observer.current) observer.current.disconnect()
-    
-    observer.current = new IntersectionObserver(entries => {
-      if (entries[0].isIntersecting && hasMore) {
-        loadMore()
-      }
-    })
-    
-    if (node) observer.current.observe(node)
-  }, [loading, hasMore])
+  // Pagination State
+  const [currentPage, setCurrentPage] = useState<number>(1)
+  const [pageHistory, setPageHistory] = useState<(string | null)[]>([null])
 
   const loadInitial = async () => {
     setLoading(true)
@@ -65,6 +54,9 @@ function App() {
       setSnapshot(data.snapshot)
       setHasMore(data.has_more)
       setLoadedCount(data.products.length)
+      
+      setCurrentPage(1)
+      setPageHistory([null])
     } catch (err: any) {
       setError(err.message || "Failed to fetch products")
     } finally {
@@ -72,17 +64,47 @@ function App() {
     }
   }
 
-  const loadMore = async () => {
+  const loadNext = async () => {
     if (!cursor || !snapshot || loading) return
     setLoading(true)
     try {
       const data = await fetchProducts(category === "All" ? null : category, cursor, snapshot)
-      setProducts(prev => [...prev, ...data.products])
+      setProducts(data.products)
+      
+      // Save current cursor for "Previous" navigation
+      setPageHistory(prev => {
+        const newHistory = [...prev]
+        newHistory[currentPage] = cursor
+        return newHistory
+      })
+      
       setCursor(data.next_cursor)
       setHasMore(data.has_more)
       setLoadedCount(prev => prev + data.products.length)
+      setCurrentPage(prev => prev + 1)
+      document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })
     } catch (err: any) {
       setError(err.message || "Failed to fetch more products")
+    } finally {
+      setLoading(false)
+    }
+  }
+
+  const loadPrevious = async () => {
+    if (currentPage <= 1 || loading || !snapshot) return
+    setLoading(true)
+    try {
+      // Get the cursor for the previous page
+      const prevCursor = pageHistory[currentPage - 2]
+      const data = await fetchProducts(category === "All" ? null : category, prevCursor, snapshot)
+      setProducts(data.products)
+      
+      setCursor(data.next_cursor)
+      setHasMore(data.has_more)
+      setCurrentPage(prev => prev - 1)
+      document.getElementById('product-grid')?.scrollIntoView({ behavior: 'smooth' })
+    } catch (err: any) {
+      setError(err.message || "Failed to fetch previous products")
     } finally {
       setLoading(false)
     }
@@ -220,34 +242,53 @@ function App() {
           </div>
         )}
 
-        {/* Infinite Scroll Visual Representation (Matches mockup footer pagination) */}
+        {/* Functional Pagination */}
         <div className="flex items-center justify-between gap-2 mb-8">
-          <button disabled className="px-4 py-2 bg-transparent text-slate-600 text-sm font-medium rounded-lg cursor-not-allowed flex items-center gap-2 border border-transparent">
+          <button 
+            onClick={loadPrevious}
+            disabled={currentPage === 1 || loading}
+            className={`px-4 py-2 bg-transparent text-sm font-medium rounded-lg flex items-center gap-2 border transition-colors ${
+              currentPage === 1 || loading 
+                ? 'text-slate-600 cursor-not-allowed border-transparent' 
+                : 'text-white hover:bg-[#1A2133] border-white/[0.05] cursor-pointer'
+            }`}
+          >
             ← Previous
           </button>
           
           <div className="hidden sm:flex items-center gap-1">
-            <div className="w-10 h-10 flex items-center justify-center bg-[#10B981] text-white font-medium rounded-lg">1</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors">2</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors">3</div>
-            <div className="w-10 h-10 flex items-center justify-center text-slate-600 font-medium">...</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer flex-col leading-none transition-colors">
-              <span className="text-[10px]">Page</span>
-              <span>∞</span>
+            {currentPage > 1 && (
+              <div 
+                onClick={loadPrevious}
+                className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors"
+              >
+                {currentPage - 1}
+              </div>
+            )}
+            <div className="w-10 h-10 flex items-center justify-center bg-[#10B981] text-white font-medium rounded-lg">
+              {currentPage}
             </div>
+            {hasMore && (
+              <div 
+                onClick={loadNext}
+                className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors"
+              >
+                {currentPage + 1}
+              </div>
+            )}
           </div>
           
-          {hasMore ? (
-            <button 
-              onClick={loadMore}
-              disabled={loading}
-              className="px-4 py-2 bg-transparent hover:bg-[#1A2133] text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 border border-white/[0.05]"
-            >
-              Load Next →
-            </button>
-          ) : (
-             <span className="px-4 py-2 text-slate-500 text-sm border border-transparent">End of results</span>
-          )}
+          <button 
+            onClick={loadNext}
+            disabled={!hasMore || loading}
+            className={`px-4 py-2 bg-transparent text-sm font-medium rounded-lg flex items-center gap-2 border transition-colors ${
+              !hasMore || loading 
+                ? 'text-slate-600 cursor-not-allowed border-transparent' 
+                : 'text-white hover:bg-[#1A2133] border-white/[0.05] cursor-pointer'
+            }`}
+          >
+            Next →
+          </button>
         </div>
 
         {/* Product Grid (Horizontal Layout) */}
@@ -261,7 +302,6 @@ function App() {
             
             return (
               <div 
-                ref={isLast ? lastProductElementRef : null}
                 key={`${product.id}-${index}`} 
                 className="group flex bg-[#131826]/80 hover:bg-[#1A2133] border border-white/[0.04] hover:border-white/[0.1] rounded-xl overflow-hidden transition-all duration-300 cursor-pointer min-h-[170px]"
               >
