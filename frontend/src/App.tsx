@@ -1,12 +1,34 @@
 import { useEffect, useState, useRef, useCallback } from 'react'
 import { fetchProducts } from './api'
 import type { Product } from './api'
-import { Loader2, PackageOpen } from 'lucide-react'
+import { 
+  PackageOpen, Search, Moon, Grid, ArrowRight, Box, Tag, Zap, ShieldCheck, 
+  ChevronDown, ArrowUpDown, Clock, CheckCircle2, Database, LayoutTemplate,
+  Laptop, BookOpen, Shirt, Dumbbell, Sofa, Gamepad2, Sparkles, Car, Home, ShoppingBag
+} from 'lucide-react'
 
 const CATEGORIES = [
   "All", "Electronics", "Books", "Clothing", "Sports", "Furniture",
   "Toys", "Beauty", "Automotive", "Home", "Groceries"
 ]
+
+// Icon mapping for fake images
+const CategoryIcon = ({ category, className }: { category: string, className?: string }) => {
+  const props = { className: className || "w-8 h-8 opacity-70" };
+  switch(category) {
+    case "Electronics": return <Laptop {...props} />;
+    case "Books": return <BookOpen {...props} />;
+    case "Clothing": return <Shirt {...props} />;
+    case "Sports": return <Dumbbell {...props} />;
+    case "Furniture": return <Sofa {...props} />;
+    case "Toys": return <Gamepad2 {...props} />;
+    case "Beauty": return <Sparkles {...props} />;
+    case "Automotive": return <Car {...props} />;
+    case "Home": return <Home {...props} />;
+    case "Groceries": return <ShoppingBag {...props} />;
+    default: return <PackageOpen {...props} />;
+  }
+}
 
 function App() {
   const [products, setProducts] = useState<Product[]>([])
@@ -16,6 +38,7 @@ function App() {
   const [hasMore, setHasMore] = useState<boolean>(true)
   const [loading, setLoading] = useState<boolean>(false)
   const [error, setError] = useState<string | null>(null)
+  const [loadedCount, setLoadedCount] = useState<number>(0)
 
   const observer = useRef<IntersectionObserver | null>(null)
   
@@ -41,6 +64,7 @@ function App() {
       setCursor(data.next_cursor)
       setSnapshot(data.snapshot)
       setHasMore(data.has_more)
+      setLoadedCount(data.products.length)
     } catch (err: any) {
       setError(err.message || "Failed to fetch products")
     } finally {
@@ -56,6 +80,7 @@ function App() {
       setProducts(prev => [...prev, ...data.products])
       setCursor(data.next_cursor)
       setHasMore(data.has_more)
+      setLoadedCount(prev => prev + data.products.length)
     } catch (err: any) {
       setError(err.message || "Failed to fetch more products")
     } finally {
@@ -63,98 +88,232 @@ function App() {
     }
   }
 
-  // Reset when category changes
   useEffect(() => {
     loadInitial()
   }, [category])
 
   return (
-    <div className="min-h-screen bg-[#F4F5F7] text-gray-800 flex flex-col font-sans">
-      {/* Navbar - Envato Style (Clean, White, High Contrast) */}
-      <nav className="sticky top-0 z-50 bg-white border-b border-gray-200 px-6 py-4 flex items-center justify-between shadow-sm">
-        <div className="flex items-center gap-3">
-          <div className="text-[#81B441]">
-            <svg width="28" height="28" viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-              <path d="M12 2C6.48 2 2 6.48 2 12C2 17.52 6.48 22 12 22C17.52 22 22 17.52 22 12C22 6.48 17.52 2 12 2ZM11 19.93C7.05 19.43 4 16.05 4 12C4 7.95 7.05 4.57 11 4.07V19.93ZM13 4.07C16.95 4.57 20 7.95 20 12C20 16.05 16.95 19.43 13 19.93V4.07Z" />
-            </svg>
+    <div className="min-h-screen bg-[#090C15] text-slate-300 flex flex-col font-sans selection:bg-[#10B981]/30">
+      
+      {/* Navbar */}
+      <nav className="sticky top-0 z-50 bg-[#090C15]/90 backdrop-blur-xl border-b border-white/[0.05] px-6 py-4 flex items-center justify-between">
+        <div className="flex items-center gap-8">
+          <div className="flex items-center gap-3">
+            <div className="text-[#10B981]">
+              <PackageOpen className="w-6 h-6" />
+            </div>
+            <h1 className="text-xl font-bold tracking-tight text-white">CodeVector Market</h1>
           </div>
-          <h1 className="text-xl font-bold tracking-tight text-gray-900">CodeVector Market</h1>
+          
+          <div className="hidden md:flex items-center gap-6 text-sm font-medium">
+            <a href="#" className="text-white relative after:content-[''] after:absolute after:-bottom-5 after:left-0 after:w-full after:h-[2px] after:bg-[#10B981]">Home</a>
+            <a href="#" className="text-slate-400 hover:text-white transition-colors">Categories</a>
+            <a href="#" className="text-slate-400 hover:text-white transition-colors">About</a>
+          </div>
         </div>
+
         <div className="flex items-center gap-4">
-          <select 
-            value={category}
-            onChange={(e) => setCategory(e.target.value)}
-            className="bg-white border border-gray-300 text-sm font-medium text-gray-700 rounded-md focus:ring-2 focus:ring-[#81B441]/50 focus:border-[#81B441] block py-2 px-4 pr-10 hover:border-gray-400 outline-none appearance-none cursor-pointer shadow-sm transition-colors"
-            style={{ backgroundImage: `url("data:image/svg+xml;charset=UTF-8,%3csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24' fill='none' stroke='%236B7280' stroke-width='2' stroke-linecap='round' stroke-linejoin='round'%3e%3cpolyline points='6 9 12 15 18 9'%3e%3c/polyline%3e%3c/svg%3e")`, backgroundRepeat: 'no-repeat', backgroundPosition: 'right 0.5rem center', backgroundSize: '1em' }}
-          >
-            {CATEGORIES.map(c => (
-              <option key={c} value={c}>{c}</option>
-            ))}
-          </select>
+          <div className="hidden lg:flex relative w-80">
+            <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+            <input 
+              type="text" 
+              placeholder="Search products, categories, or keywords..." 
+              className="w-full bg-[#131826] border border-white/[0.05] rounded-lg pl-9 pr-12 py-2 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#10B981]/50 focus:ring-1 focus:ring-[#10B981]/50 transition-all"
+            />
+            <div className="absolute right-2 top-1/2 -translate-y-1/2 flex items-center gap-1 text-[10px] text-slate-500 bg-white/5 px-1.5 py-0.5 rounded">
+              <span className="font-sans text-xs">⌘</span><span>K</span>
+            </div>
+          </div>
+          
+          <button className="p-2 text-slate-400 hover:text-white transition-colors">
+            <Moon className="w-5 h-5" />
+          </button>
+          
+          <div className="relative">
+            <select 
+              value={category}
+              onChange={(e) => setCategory(e.target.value)}
+              className="bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg focus:ring-1 focus:ring-[#10B981] focus:border-[#10B981] block py-2 pl-4 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer"
+            >
+              {CATEGORIES.map(c => (
+                <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+              ))}
+            </select>
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
         </div>
       </nav>
+
+      {/* Hero Section */}
+      <section className="relative w-full max-w-[1400px] mx-auto px-6 pt-16 pb-12 overflow-hidden border-b border-white/[0.05]">
+        {/* Subtle background glow lines representing the mockup's background art */}
+        <div className="absolute top-0 right-0 w-[600px] h-[600px] bg-gradient-to-bl from-[#10B981]/5 via-[#8B5CF6]/5 to-transparent rounded-full blur-[100px] pointer-events-none -z-10" />
+        
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
+          <div>
+            <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold tracking-wide mb-6">
+              <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+              200,000+ Products Available
+            </div>
+            
+            <h2 className="text-5xl md:text-6xl font-bold tracking-tight text-white mb-6 leading-[1.1]">
+              Discover. <span className="text-[#10B981]">Browse.</span> <span className="text-[#8B5CF6]">Buy.</span>
+            </h2>
+            
+            <p className="text-lg text-slate-400 mb-8 max-w-lg leading-relaxed">
+              Explore premium products across 10+ categories with lightning-fast search and seamless experience.
+            </p>
+            
+            <div className="flex items-center gap-4">
+              <button className="flex items-center gap-2 bg-[#10B981] hover:bg-[#0EA5E9]/90 text-white font-medium py-3 px-6 rounded-lg transition-colors shadow-[0_0_20px_-5px_rgba(16,185,129,0.4)]">
+                Browse All Products <ArrowRight className="w-4 h-4" />
+              </button>
+              <button className="flex items-center gap-2 bg-[#131826] hover:bg-[#1A2133] border border-white/[0.05] text-white font-medium py-3 px-6 rounded-lg transition-colors">
+                View Categories <Grid className="w-4 h-4" />
+              </button>
+            </div>
+          </div>
+          
+          <div className="grid grid-cols-2 gap-4">
+            <div className="bg-[#131826]/80 backdrop-blur-sm border border-white/[0.05] rounded-xl p-6 flex flex-col justify-center">
+              <div className="w-10 h-10 rounded-lg bg-green-500/10 flex items-center justify-center mb-4 border border-green-500/20">
+                <Box className="w-5 h-5 text-green-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-1">200,000+</h3>
+              <p className="text-sm text-slate-500">Products</p>
+            </div>
+            
+            <div className="bg-[#131826]/80 backdrop-blur-sm border border-white/[0.05] rounded-xl p-6 flex flex-col justify-center">
+              <div className="w-10 h-10 rounded-lg bg-blue-500/10 flex items-center justify-center mb-4 border border-blue-500/20">
+                <Tag className="w-5 h-5 text-blue-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-1">10+</h3>
+              <p className="text-sm text-slate-500">Categories</p>
+            </div>
+            
+            <div className="bg-[#131826]/80 backdrop-blur-sm border border-white/[0.05] rounded-xl p-6 flex flex-col justify-center">
+              <div className="w-10 h-10 rounded-lg bg-purple-500/10 flex items-center justify-center mb-4 border border-purple-500/20">
+                <Zap className="w-5 h-5 text-purple-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-1">99.9%</h3>
+              <p className="text-sm text-slate-500">Uptime</p>
+            </div>
+            
+            <div className="bg-[#131826]/80 backdrop-blur-sm border border-white/[0.05] rounded-xl p-6 flex flex-col justify-center">
+              <div className="w-10 h-10 rounded-lg bg-emerald-500/10 flex items-center justify-center mb-4 border border-emerald-500/20">
+                <ShieldCheck className="w-5 h-5 text-emerald-400" />
+              </div>
+              <h3 className="text-2xl font-bold text-white mb-1">0</h3>
+              <p className="text-sm text-slate-500">Duplicates</p>
+            </div>
+          </div>
+        </div>
+      </section>
 
       {/* Main Content Area */}
       <main className="flex-1 max-w-[1400px] w-full mx-auto p-6 md:p-8">
         
-        <div className="mb-8">
-          <h2 className="text-3xl font-bold text-gray-900 mb-2">Browse {category === 'All' ? 'Everything' : category}</h2>
-          <p className="text-gray-500 font-medium">Discover premium digital assets created by top developers.</p>
+        {/* Control Bar */}
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-4 mb-8">
+          <div className="flex items-center gap-4 w-full sm:w-auto">
+            <div className="relative w-full sm:w-72">
+              <Search className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-500" />
+              <input 
+                type="text" 
+                placeholder="Search products..." 
+                className="w-full bg-[#131826] border border-white/[0.05] rounded-lg pl-9 pr-4 py-2.5 text-sm text-white placeholder-slate-500 focus:outline-none focus:border-[#10B981]/50"
+              />
+            </div>
+            <div className="relative hidden sm:block">
+              <select 
+                value={category}
+                onChange={(e) => setCategory(e.target.value)}
+                className="bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg block py-2.5 pl-10 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer"
+              >
+                {CATEGORIES.map(c => (
+                  <option key={c} value={c}>{c === 'All' ? 'All Categories' : c}</option>
+                ))}
+              </select>
+              <LayoutTemplate className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+              <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            </div>
+          </div>
+          
+          <div className="relative w-full sm:w-auto">
+            <select className="w-full bg-[#131826] border border-white/[0.05] text-sm font-medium text-slate-200 rounded-lg block py-2.5 pl-10 pr-10 hover:bg-[#1A2133] outline-none appearance-none cursor-pointer">
+              <option>Newest First</option>
+              <option>Price: Low to High</option>
+              <option>Price: High to Low</option>
+            </select>
+            <ArrowUpDown className="w-4 h-4 absolute left-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+            <ChevronDown className="w-4 h-4 absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 pointer-events-none" />
+          </div>
         </div>
 
         {error && (
-          <div className="bg-red-50 border border-red-200 text-red-700 px-5 py-4 rounded-md mb-8 flex items-center gap-3">
+          <div className="bg-red-500/10 border border-red-500/20 text-red-400 px-5 py-4 rounded-xl mb-8 flex items-center gap-3">
             <span className="font-medium">{error}</span>
           </div>
         )}
 
-        {/* Product Grid */}
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+        {/* Product Grid (Horizontal Layout) */}
+        <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {products.map((product, index) => {
             const isLast = products.length === index + 1;
             
-            // Generate a stable pastel color based on product ID for the placeholder "image"
+            // Generate a color hue for the placeholder image based on ID
             const hue = (product.id * 137.5) % 360;
-            const bgColor = `hsl(${hue}, 70%, 90%)`;
-            const iconColor = `hsl(${hue}, 60%, 60%)`;
-
+            const bgGradient = `linear-gradient(135deg, hsl(${hue}, 40%, 15%), hsl(${hue}, 60%, 8%))`;
+            
             return (
               <div 
                 ref={isLast ? lastProductElementRef : null}
                 key={`${product.id}-${index}`} 
-                className="group bg-white rounded-lg border border-gray-200 overflow-hidden hover:shadow-[0_8px_30px_rgb(0,0,0,0.08)] transition-all duration-300 flex flex-col cursor-pointer"
+                className="group flex bg-[#131826]/80 hover:bg-[#1A2133] border border-white/[0.04] rounded-xl overflow-hidden transition-all duration-300 cursor-pointer h-40"
               >
-                {/* Simulated Image Asset */}
+                {/* Left Side: Simulated Image */}
                 <div 
-                  className="h-48 w-full flex items-center justify-center relative overflow-hidden"
-                  style={{ backgroundColor: bgColor }}
+                  className="w-1/3 min-w-[120px] max-w-[140px] h-full flex flex-col items-center justify-center relative border-r border-white/[0.02]"
+                  style={{ background: bgGradient }}
                 >
-                  <PackageOpen className="w-16 h-16 opacity-50 transition-transform duration-500 group-hover:scale-110" style={{ color: iconColor }} />
+                  <CategoryIcon category={product.category} className="w-10 h-10 text-white/50 group-hover:scale-110 group-hover:text-white/80 transition-all duration-500" />
                   
-                  {/* Category Badge overlay on image */}
-                  <div className="absolute top-3 left-3 bg-white/90 backdrop-blur-sm px-2.5 py-1 rounded text-[11px] font-bold text-gray-700 uppercase tracking-wide">
-                    {product.category}
-                  </div>
+                  {/* Overlay reflection effect */}
+                  <div className="absolute inset-0 bg-gradient-to-b from-white/5 to-transparent opacity-50" />
                 </div>
                 
-                {/* Product Details */}
-                <div className="p-5 flex flex-col flex-1">
-                  <h3 className="font-semibold text-base text-gray-900 leading-snug line-clamp-2 group-hover:text-[#81B441] transition-colors">
+                {/* Right Side: Product Details */}
+                <div className="p-4 flex flex-col flex-1 relative">
+                  <div className="flex justify-between items-start mb-2">
+                    <span className="text-[10px] font-bold px-2 py-0.5 rounded bg-white/5 text-slate-300 border border-white/10 uppercase tracking-wider">
+                      {product.category}
+                    </span>
+                    {/* Fake favorite heart icon */}
+                    <button className="text-slate-500 hover:text-white transition-colors">
+                      <svg className="w-4 h-4" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M4.318 6.318a4.5 4.5 0 000 6.364L12 20.364l7.682-7.682a4.5 4.5 0 00-6.364-6.364L12 7.636l-1.318-1.318a4.5 4.5 0 00-6.364 0z" /></svg>
+                    </button>
+                  </div>
+                  
+                  <h3 className="font-semibold text-[15px] text-white leading-tight line-clamp-1 mb-1 group-hover:text-[#10B981] transition-colors">
                     {product.name}
                   </h3>
                   
-                  <div className="text-sm text-gray-500 mt-1 mb-4 flex items-center gap-1">
-                    <span>by</span>
-                    <span className="font-medium text-gray-700 hover:underline">CodeVector Authors</span>
+                  <div className="text-xs text-slate-500 mb-2">
+                    by <span className="text-slate-400">CodeVector</span>
                   </div>
                   
-                  <div className="mt-auto pt-4 border-t border-gray-100 flex items-center justify-between">
-                    <div className="flex items-center gap-1 text-xs text-gray-400">
-                      <svg className="w-3.5 h-3.5" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" /></svg>
-                      Last updated {new Date(product.updated_at).toLocaleDateString()}
-                    </div>
-                    <span className="text-lg font-bold text-[#81B441]">
-                      ${product.price.toFixed(2)}
+                  <div className="text-[15px] font-bold text-[#10B981] mt-auto">
+                    ${product.price.toFixed(2)}
+                  </div>
+                  
+                  <div className="mt-3 pt-3 border-t border-white/[0.04] flex items-center justify-between text-[11px] text-slate-500">
+                    <span className="flex items-center gap-1.5" title={new Date(product.updated_at).toLocaleString()}>
+                      <Clock className="w-3.5 h-3.5" />
+                      {new Date(product.updated_at).toLocaleDateString()}
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <Database className="w-3.5 h-3.5" />
+                      ID: {product.id}
                     </span>
                   </div>
                 </div>
@@ -165,30 +324,98 @@ function App() {
 
         {/* Loading State */}
         {loading && (
-          <div className="flex flex-col justify-center items-center py-16 gap-3">
-            <Loader2 className="w-8 h-8 text-[#81B441] animate-spin" />
-            <span className="text-gray-500 font-medium text-sm">Loading more assets...</span>
-          </div>
-        )}
-
-        {/* Empty State */}
-        {!loading && products.length === 0 && !error && (
-          <div className="flex flex-col items-center justify-center py-24 text-gray-400 bg-white rounded-lg border border-gray-200 mt-4 shadow-sm">
-            <PackageOpen className="w-16 h-16 text-gray-300 mb-4" />
-            <h2 className="text-xl font-semibold text-gray-700 mb-2">No assets found</h2>
-            <p className="text-gray-500">We couldn't find any products in this category.</p>
+          <div className="flex justify-center items-center py-12">
+            <div className="flex space-x-2">
+              <div className="w-2.5 h-2.5 bg-[#10B981] rounded-full animate-bounce [animation-delay:-0.3s]"></div>
+              <div className="w-2.5 h-2.5 bg-[#10B981] rounded-full animate-bounce [animation-delay:-0.15s]"></div>
+              <div className="w-2.5 h-2.5 bg-[#10B981] rounded-full animate-bounce"></div>
+            </div>
           </div>
         )}
         
-        {/* End of list */}
-        {!hasMore && products.length > 0 && (
-          <div className="flex items-center justify-center py-12">
-            <div className="h-[1px] w-16 bg-gray-200" />
-            <span className="px-4 text-gray-400 text-sm font-semibold uppercase tracking-wider">End of Results</span>
-            <div className="h-[1px] w-16 bg-gray-200" />
+        {/* Infinite Scroll Visual Representation (Matches mockup footer pagination) */}
+        <div className="flex items-center justify-center gap-2 mt-12 mb-4">
+          <button disabled className="px-4 py-2 bg-transparent text-slate-600 text-sm font-medium rounded-lg cursor-not-allowed flex items-center gap-2">
+            ← Previous
+          </button>
+          
+          <div className="hidden sm:flex items-center gap-1">
+            <div className="w-10 h-10 flex items-center justify-center bg-[#10B981] text-white font-medium rounded-lg">1</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer">2</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer">3</div>
+            <div className="w-10 h-10 flex items-center justify-center text-slate-600 font-medium">...</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer flex-col leading-none">
+              <span className="text-[10px]">Page</span>
+              <span>∞</span>
+            </div>
           </div>
-        )}
+          
+          {hasMore ? (
+            <button 
+              onClick={loadMore}
+              disabled={loading}
+              className="px-4 py-2 bg-transparent hover:bg-[#1A2133] text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 border border-white/[0.05]"
+            >
+              Load Next →
+            </button>
+          ) : (
+             <span className="px-4 py-2 text-slate-500 text-sm">End of results</span>
+          )}
+        </div>
+
       </main>
+
+      {/* Tech Stack Footer (Matches Mockup) */}
+      <footer className="w-full border-t border-white/[0.05] bg-[#090C15] mt-auto">
+        <div className="max-w-[1400px] mx-auto px-6 py-6 flex flex-col md:flex-row items-center justify-between gap-6">
+          
+          <div className="flex flex-wrap items-center gap-x-12 gap-y-4">
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-full bg-green-500/10 text-green-400 border border-green-500/20">
+                <CheckCircle2 className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white leading-tight">Cursor Pagination</p>
+                <p className="text-[11px] text-slate-500">Fast & Efficient</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-full bg-purple-500/10 text-purple-400 border border-purple-500/20">
+                <ShieldCheck className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white leading-tight">Snapshot Consistency</p>
+                <p className="text-[11px] text-slate-500">No duplicates</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-full bg-blue-500/10 text-blue-400 border border-blue-500/20">
+                <Database className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white leading-tight">PostgreSQL</p>
+                <p className="text-[11px] text-slate-500">Powered</p>
+              </div>
+            </div>
+            
+            <div className="flex items-center gap-3">
+              <div className="p-1.5 rounded-full bg-yellow-500/10 text-yellow-400 border border-yellow-500/20">
+                <Zap className="w-4 h-4" />
+              </div>
+              <div>
+                <p className="text-sm font-semibold text-white leading-tight">FastAPI</p>
+                <p className="text-[11px] text-slate-500">High Performance</p>
+              </div>
+            </div>
+          </div>
+          
+          <div className="text-sm text-slate-400">
+            Showing <span className="text-white font-medium">{products.length > 0 ? 1 : 0} - {loadedCount}</span> of 200,000+ products
+          </div>
+        </div>
+      </footer>
     </div>
   )
 }
