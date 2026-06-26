@@ -3,8 +3,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from .database import engine, Base
 from .routes import router as products_router
 
-# Create tables if they don't exist
-Base.metadata.create_all(bind=engine)
+# In production, we assume tables are already created (e.g., via Alembic or seeder)
+# Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="Product Catalog API")
 
