@@ -220,6 +220,36 @@ function App() {
           </div>
         )}
 
+        {/* Infinite Scroll Visual Representation (Matches mockup footer pagination) */}
+        <div className="flex items-center justify-between gap-2 mb-8">
+          <button disabled className="px-4 py-2 bg-transparent text-slate-600 text-sm font-medium rounded-lg cursor-not-allowed flex items-center gap-2 border border-transparent">
+            ← Previous
+          </button>
+          
+          <div className="hidden sm:flex items-center gap-1">
+            <div className="w-10 h-10 flex items-center justify-center bg-[#10B981] text-white font-medium rounded-lg">1</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors">2</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer transition-colors">3</div>
+            <div className="w-10 h-10 flex items-center justify-center text-slate-600 font-medium">...</div>
+            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer flex-col leading-none transition-colors">
+              <span className="text-[10px]">Page</span>
+              <span>∞</span>
+            </div>
+          </div>
+          
+          {hasMore ? (
+            <button 
+              onClick={loadMore}
+              disabled={loading}
+              className="px-4 py-2 bg-transparent hover:bg-[#1A2133] text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 border border-white/[0.05]"
+            >
+              Load Next →
+            </button>
+          ) : (
+             <span className="px-4 py-2 text-slate-500 text-sm border border-transparent">End of results</span>
+          )}
+        </div>
+
         {/* Product Grid (Horizontal Layout) */}
         <div className="grid grid-cols-1 lg:grid-cols-2 xl:grid-cols-3 gap-5">
           {products.map((product, index) => {
@@ -297,35 +327,7 @@ function App() {
           </div>
         )}
         
-        {/* Infinite Scroll Visual Representation (Matches mockup footer pagination) */}
-        <div className="flex items-center justify-center gap-2 mt-12 mb-4">
-          <button disabled className="px-4 py-2 bg-transparent text-slate-600 text-sm font-medium rounded-lg cursor-not-allowed flex items-center gap-2">
-            ← Previous
-          </button>
-          
-          <div className="hidden sm:flex items-center gap-1">
-            <div className="w-10 h-10 flex items-center justify-center bg-[#10B981] text-white font-medium rounded-lg">1</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer">2</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer">3</div>
-            <div className="w-10 h-10 flex items-center justify-center text-slate-600 font-medium">...</div>
-            <div className="w-10 h-10 flex items-center justify-center hover:bg-[#1A2133] text-slate-400 font-medium rounded-lg cursor-pointer flex-col leading-none">
-              <span className="text-[10px]">Page</span>
-              <span>∞</span>
-            </div>
-          </div>
-          
-          {hasMore ? (
-            <button 
-              onClick={loadMore}
-              disabled={loading}
-              className="px-4 py-2 bg-transparent hover:bg-[#1A2133] text-white text-sm font-medium rounded-lg transition-colors flex items-center gap-2 border border-white/[0.05]"
-            >
-              Load Next →
-            </button>
-          ) : (
-             <span className="px-4 py-2 text-slate-500 text-sm">End of results</span>
-          )}
-        </div>
+
 
       </main>
 
