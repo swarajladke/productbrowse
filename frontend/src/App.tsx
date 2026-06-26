@@ -256,7 +256,7 @@ function App() {
                   </h3>
                   
                   <div className="text-xs text-slate-500 mb-3">
-                    by <span className="text-slate-400 font-medium hover:text-white transition-colors">CodeVector</span>
+                    by <span className="text-slate-400 font-medium hover:text-white transition-colors">ProductVault</span>
                   </div>
                   
                   <div className="text-lg font-bold text-[#10B981] mt-auto">
