@@ -269,7 +269,7 @@ function App() {
               <div 
                 ref={isLast ? lastProductElementRef : null}
                 key={`${product.id}-${index}`} 
-                className="group flex bg-[#131826]/80 hover:bg-[#1A2133] border border-white/[0.04] rounded-xl overflow-hidden transition-all duration-300 cursor-pointer h-40"
+                className="group flex bg-[#131826]/80 hover:bg-[#1A2133] border border-white/[0.04] hover:border-white/[0.1] rounded-xl overflow-hidden transition-all duration-300 cursor-pointer min-h-[170px]"
               >
                 {/* Left Side: Simulated Image */}
                 <div 
@@ -294,15 +294,15 @@ function App() {
                     </button>
                   </div>
                   
-                  <h3 className="font-semibold text-[15px] text-white leading-tight line-clamp-1 mb-1 group-hover:text-[#10B981] transition-colors">
+                  <h3 className="font-semibold text-base text-white leading-snug line-clamp-2 mb-1.5 group-hover:text-[#10B981] transition-colors pr-2">
                     {product.name}
                   </h3>
                   
-                  <div className="text-xs text-slate-500 mb-2">
-                    by <span className="text-slate-400">CodeVector</span>
+                  <div className="text-xs text-slate-500 mb-3">
+                    by <span className="text-slate-400 font-medium hover:text-white transition-colors">CodeVector</span>
                   </div>
                   
-                  <div className="text-[15px] font-bold text-[#10B981] mt-auto">
+                  <div className="text-lg font-bold text-[#10B981] mt-auto">
                     ${product.price.toFixed(2)}
                   </div>
                   
