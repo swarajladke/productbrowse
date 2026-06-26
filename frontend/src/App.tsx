@@ -103,6 +103,13 @@ function App() {
         
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-center">
           <div>
+            <div className="flex items-center gap-3 mb-8">
+              <div className="text-[#10B981]">
+                <PackageOpen className="w-8 h-8" />
+              </div>
+              <h1 className="text-2xl font-bold tracking-tight text-white">ProductVault</h1>
+            </div>
+            
             <div className="inline-flex items-center gap-2 px-3 py-1.5 rounded-full bg-green-500/10 border border-green-500/20 text-green-400 text-xs font-semibold tracking-wide mb-6">
               <div className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
               200,000+ Products Available
